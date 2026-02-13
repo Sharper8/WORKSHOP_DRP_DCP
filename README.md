@@ -136,6 +136,30 @@ exit
 ```
 
 ---------------------------------------------------
+Séquence 4 : 💥 Scénarios de crash possibles 
+Difficulté : Facile (~30 minutes)
+---------------------------------------------------
+✅ **Scénario 1 — Crash du pod**  
+Nous allons dans ce scénario **détruire notre Pod Kubernetes**. Ceci simulera par exemple la supression d'un pod accidentel, un pod qui crash, un pod redémarré, etc..
+
+**Destruction du pod :** Ci-dessous, la cible de notre scénario   
+  
+![Screenshot Actions](scenario1.png)  
+
+Nous perdons donc ici notre application mais pas notre base de données qui est déposée dans le PVC pra-data.  
+  
+
+
+👉 Kubernetes gère tout seul : Aucun impact sur les données (PVC conserve la DB)
+
+
+
+
+
+
+
+
+---------------------------------------------------
 Séquence 4 : Documentation  
 Difficulté : Facile (~30 minutes)
 ---------------------------------------------------
