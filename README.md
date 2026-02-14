@@ -139,7 +139,7 @@ exit
 Séquence 4 : 💥 Scénarios de crash possibles  
 Difficulté : Facile (~30 minutes)
 ---------------------------------------------------
-✅ **Scénario 1 : PCA — Crash du pod**  
+🎬 **Scénario 1 : PCA — Crash du pod**  
 Nous allons dans ce scénario **détruire notre Pod Kubernetes**. Ceci simulera par exemple la supression d'un pod accidentellement, ou un pod qui crash, ou un pod redémarré, etc..
 
 **Destruction du pod :** Ci-dessous, la cible de notre scénario   
@@ -171,8 +171,10 @@ Observez le résultat en ligne
 https://...**/consultation** -> Vous n'avez perdu aucun message.
   
 👉 Kubernetes gère tout seul : Aucun impact sur les données ou sur votre service (PVC conserve la DB et le pod est reconstruit automatiquement) -> **C'est du PCA**. Tout est automatique et il n'y a aucune rupture de service.
-
-
+---------------------------------------------------
+🎬 **Scénario 2 : PRA - Perte du PVC pra-date**🔥 
+Nous allons dans ce scénario **détruire notre PVC pra-data**. C'est à dire nous allons suprimer la base de données en production. Ceci simulera par exemple la corruption de la BDD SQLite, le disque du node perdu, une erreur humaine, etc.
+💥 Impact : IL s'agit ici d'un impact important puisque la BDD est perdue.  
 
 
 
