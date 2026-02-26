@@ -231,27 +231,36 @@ Faites preuve de pédagogie et soyez clair dans vos explications et procedures d
 **Exercice 1 :**  
 Quels sont les composants dont la perte entraîne une perte de données ?  
   
-*..Répondez à cet exercice ici..*
+La perte du **PVC `pra-data`** entraîne une perte immédiate des données de production (BDD SQLite active).  
+La perte du **PVC `pra-backup`** n'efface pas les données en cours, mais supprime la capacité de restauration après sinistre.  
+La perte simultanée de `pra-data` et `pra-backup` provoque une perte définitive des données (y compris les données de backup).
 
 **Exercice 2 :**  
 Expliquez nous pourquoi nous n'avons pas perdu les données lors de la supression du PVC pra-data  
   
-*..Répondez à cet exercice ici..*
+Si on supprime vraiment `pra-data`, on perd les données actives, puis on les récupère via la procédure PRA depuis `pra-backup`.  
+L'absence de perte observée dans le scénario PCA vient surtout de la suppression du **pod** (et non du PVC) : le pod est recréé, mais la base reste sur le volume persistant.  
+Donc la persistance vient du stockage sur PVC, et la reprise vient des sauvegardes.
 
 **Exercice 3 :**  
 Quels sont les RTO et RPO de cette solution ?  
   
-*..Répondez à cet exercice ici..*
+Le **RPO** visé est d'environ **1 minute**, car une sauvegarde est créée toutes les minutes (perte maximale théorique : les données écrites depuis le dernier backup).  
+Le **RTO** est de quelques minutes, le temps de recréer les ressources, lancer le job de restauration, puis vérifier le service.  
+Ces valeurs restent approximatives et dépendent du temps d'exécution manuelle de la procédure.
 
 **Exercice 4 :**  
 Pourquoi cette solution (cet atelier) ne peux pas être utilisé dans un vrai environnement de production ? Que manque-t-il ?   
   
-*..Répondez à cet exercice ici..*
+Cet atelier n'est pas de "production grade" : il repose sur un cluster local, des volumes non répliqués et une restauration majoritairement manuelle.  
+Il manque notamment la redondance multi-zones/régions, le chiffrement, la supervision/alerting, des tests de restauration automatisés et des sauvegardes externalisées (hors cluster).  
   
 **Exercice 5 :**  
 Proposez une archtecture plus robuste.   
   
-*..Répondez à cet exercice ici..*
+Une architecture robuste inclurait un cluster Kubernetes hautement disponible sur plusieurs zones, avec une base de données managée répliquée plutôt qu'une SQLite locale.  
+Les sauvegardes seraient versionnées, chiffrées et exportées vers un stockage objet externe, avec rétention et tests réguliers de restauration.  
+La reprise serait pilotée par des runbooks automatisés (GitOps/CI-CD), avec supervision continue des objectifs RTO/RPO.
 
 ---------------------------------------------------
 Séquence 6 : Ateliers  
