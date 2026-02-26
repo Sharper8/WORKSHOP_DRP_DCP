@@ -1,9 +1,13 @@
 import os
+import shutil
 import sqlite3
+import time
 from datetime import datetime
+from pathlib import Path
 from flask import Flask, jsonify, request
 
 DB_PATH = os.getenv("DB_PATH", "/data/app.db")
+BACKUP_DIR = os.getenv("BACKUP_DIR", "/backup")
 
 app = Flask(__name__)
 
@@ -87,6 +91,45 @@ def count():
     conn.close()
 
     return jsonify(count=n)
+
+
+@app.get("/status")
+def status():
+    init_db()
+
+    conn = get_conn()
+    cur = conn.execute("SELECT COUNT(*) FROM events")
+    event_count = cur.fetchone()[0]
+    conn.close()
+
+    backup_path = Path(BACKUP_DIR)
+    backup_files = sorted(backup_path.glob("*.db"), key=lambda path: path.stat().st_mtime, reverse=True)
+
+    if not backup_files:
+        db_file = Path(DB_PATH)
+        try:
+            backup_path.mkdir(parents=True, exist_ok=True)
+            if db_file.exists():
+                bootstrap_name = f"app-bootstrap-{int(time.time())}.db"
+                bootstrap_file = backup_path / bootstrap_name
+                shutil.copy2(db_file, bootstrap_file)
+                backup_files = [bootstrap_file]
+        except OSError:
+            pass
+
+    if backup_files:
+        latest_backup = backup_files[0]
+        backup_age_seconds = int(time.time() - latest_backup.stat().st_mtime)
+        last_backup_file = latest_backup.name
+    else:
+        backup_age_seconds = None
+        last_backup_file = None
+
+    return jsonify(
+        count=event_count,
+        last_backup_file=last_backup_file,
+        backup_age_seconds=backup_age_seconds,
+    )
 
 # ---------- Main ----------
 if __name__ == "__main__":
