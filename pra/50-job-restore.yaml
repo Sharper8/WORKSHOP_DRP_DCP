@@ -4,17 +4,33 @@ metadata:
   name: sqlite-restore
   namespace: pra
 spec:
+  suspend: true
   template:
     spec:
       restartPolicy: Never
       containers:
         - name: restore
           image: alpine
+          env:
+            - name: RESTORE_FILE
+              value: ""
           command: ["/bin/sh","-c"]
           args:
             - |
-              LATEST=$(ls -t /backup/*.db | head -1)
-              cp $LATEST /data/app.db
+              set -eu
+              if [ -n "${RESTORE_FILE}" ]; then
+                SOURCE="/backup/${RESTORE_FILE}"
+              else
+                SOURCE="$(ls -t /backup/*.db | head -1)"
+              fi
+
+              if [ ! -f "${SOURCE}" ]; then
+                echo "Backup file not found: ${SOURCE}"
+                exit 1
+              fi
+
+              cp "${SOURCE}" /data/app.db
+              echo "Restored from ${SOURCE}"
           volumeMounts:
             - name: data
               mountPath: /data
